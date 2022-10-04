@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.WebView.Maui;
-using MemeChat.Data;
-
-namespace MemeChat;
+﻿namespace MemeChat;
 
 public static class MauiProgram
 {
@@ -16,11 +13,9 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddMauiBlazorWebView();
-		#if DEBUG
+#if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
-		
-		builder.Services.AddSingleton<WeatherForecastService>();
 
 		return builder.Build();
 	}
