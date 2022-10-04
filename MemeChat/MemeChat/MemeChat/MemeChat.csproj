@@ -53,8 +53,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models\" />
       <Folder Include="ViewModel\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MemeChat.Database\MemeChat.Database.csproj" />
     </ItemGroup>
 
 </Project>
