@@ -5,96 +5,108 @@
 @using MemeChat.Models
 @using MemeChat.ViewModel
 
-<MudButton StartIcon="@Icons.Filled.KeyboardBackspace" Variant="Variant.Text" Link="@(isCurrent ? "start" : "chat/" + Nickname)" Class="my-3">
-    @(isCurrent ? "Fill Your Profile" : "Back")
-</MudButton>
+<MudAppBar Elevation="1" Fixed="true" Dense="true">
+    <MudText Align="Align.Center" Typo="Typo.h5" Class="user-select-none">MemeChat</MudText>
+</MudAppBar>
 
-@if (!isConnected)
-{
-    <MudAlert Severity="Severity.Warning">
-        No connection could be made to the server.
-        The login is not possible at the moment.
-        Please try again in 5 minutes.
-    </MudAlert>
-}
-else if (user == null)
-{
-    <MudAlert Severity="Severity.Error">The user could not be found!</MudAlert>
-    <MudButton Link="home">Go to home</MudButton>
-}
-else
-{
-    if (user.Id == Guid.Empty && !isConnected)
-    {
-        <MudAlert Severity="Severity.Error">An internet connection is required for registration!</MudAlert>
-    }
+<MudMainContent>
+    <MudContainer MaxWidth="MaxWidth.Large">
 
-    <EditForm Model="@user" OnValidSubmit="@(async () => await SaveUser())">
-        <DataAnnotationsValidator />
-        <MudGrid>
+        <MudButton StartIcon="@Icons.Filled.KeyboardBackspace" Variant="Variant.Text" Link="@(isCurrent ? "start" : "chat/" + Nickname)" Class="my-3">
+            @(isCurrent ? "Fill Your Profile" : "Back")
+        </MudButton>
 
-            <MudItem xs="12">
-                <button @onclick="@(async () => await OpenMediaPicker())">
-                    <MudAvatar Image="@user.Avatar" Size="Size.Large">
-                        <MudIcon Color="Color.Dark" Icon="@Icons.Filled.AccountCircle" Size="Size.Large"/>
-                    </MudAvatar>
-                </button>
-            </MudItem>
-
-            <MudItem xs="12" md="6">
-                <MudTextField Label="Full Name"
-                          ReadOnly="@(!isCurrent)"
-                          @bind-Value="user.Name"
-                          For="@(() => user.Name)" />
-            </MudItem>
-            <MudItem xs="12" md="6">
-                <MudTextField Label="Nickname"
-                          HelperText="With this name you will be found"
-                          HelperTextOnFocus="true"
-                          ReadOnly="@(!isCurrent)"
-                          @bind-Value="user.Nickname"
-                          For="@(() => user.Nickname)" />
-            </MudItem>
-            <MudItem xs="12" md="isCurrent ? 12 : 6">
-                <MudDatePicker Label="Date of Birth"
-                           @bind-Date="user.DateOfBirth"
-                           For="@(() => user.DateOfBirth)" />
-            </MudItem>
-            <MudItem xs="12" md="6">
-                <MudTextField Label="Email"
-                          InputType="InputType.Email"
-                          ReadOnly="@(!isCurrent)"
-                          @bind-Value="user.Email"
-                          For="@(() => user.Email)" />
-            </MudItem>
-            @if (isCurrent)
+        @if (!isConnected)
+        {
+            <MudAlert Severity="Severity.Warning">
+                No connection could be made to the server.
+                The login is not possible at the moment.
+                Please try again in 5 minutes.
+            </MudAlert>
+        }
+        else if (user == null)
+        {
+            <MudAlert Severity="Severity.Error">The user could not be found!</MudAlert>
+            <MudButton Link="home">Go to home</MudButton>
+        }
+        else
+        {
+            if (user.Id == Guid.Empty && !isConnected)
             {
-                <MudItem xs="12" md="6">
-                    <MudTextField Label="Password"
-                          InputType="passwordInput"
-                          @bind-Value="user.Password"
-                          For="@(() => user.Password)"
-                          Adornment="Adornment.End"
-                          AdornmentIcon="@passwordInputIcon"
-                          OnAdornmentClick="TogglePassword" />
-                </MudItem>
+                <MudAlert Severity="Severity.Error">An internet connection is required for registration!</MudAlert>
             }
-            <MudItem xs="12">
-                <MudTextField Label="About"
-                          Lines="4"
-                          ReadOnly="@(!isCurrent)"
-                          @bind-Value="user.About"
-                          For="@(() => user.About)" />
-            </MudItem>
-            @if (isCurrent)
-            {
-                <MudItem xs="12">
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(!isConnected && user?.Id != Guid.Empty)" Class="py-4">Continue</MudButton>
-                </MudItem>
-            }
-        </MudGrid>
-    </EditForm>
-}
+
+            <EditForm Model="@user" OnValidSubmit="@(async () => await SaveUser())">
+                <DataAnnotationsValidator />
+                <MudGrid>
+
+                    <MudItem xs="12">
+                        <button @onclick="@(async () => await OpenMediaPicker())">
+                            <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                                <MudAvatar Image="@user.Avatar" Size="Size.Large">
+                                    <MudIcon Color="Color.Dark" Icon="@Icons.Filled.AccountCircle" Size="Size.Large" />
+                                </MudAvatar>
+                            </MudStack>
+                        </button>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudTextField Label="Full Name"
+                                  ReadOnly="@(!isCurrent)"
+                                  @bind-Value="user.Name"
+                                  For="@(() => user.Name)" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField Label="Nickname"
+                                  HelperText="With this name you will be found"
+                                  HelperTextOnFocus="true"
+                                  ReadOnly="@(!isCurrent)"
+                                  @bind-Value="user.Nickname"
+                                  For="@(() => user.Nickname)" />
+                    </MudItem>
+                    <MudItem xs="12" md="isCurrent ? 12 : 6">
+                        <MudDatePicker Label="Date of Birth"
+                                   @bind-Date="user.DateOfBirth"
+                                   For="@(() => user.DateOfBirth)" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField Label="Email"
+                                  InputType="InputType.Email"
+                                  ReadOnly="@(!isCurrent)"
+                                  @bind-Value="user.Email"
+                                  For="@(() => user.Email)" />
+                    </MudItem>
+                    @if (isCurrent)
+                    {
+                        <MudItem xs="12" md="6">
+                            <MudTextField Label="Password"
+                                  InputType="passwordInput"
+                                  @bind-Value="user.Password"
+                                  For="@(() => user.Password)"
+                                  Adornment="Adornment.End"
+                                  AdornmentIcon="@passwordInputIcon"
+                                  OnAdornmentClick="TogglePassword" />
+                        </MudItem>
+                    }
+                    <MudItem xs="12">
+                        <MudTextField Label="About"
+                                  Lines="4"
+                                  ReadOnly="@(!isCurrent)"
+                                  @bind-Value="user.About"
+                                  For="@(() => user.About)"
+                                  Counter="250" />
+                    </MudItem>
+                    @if (isCurrent)
+                    {
+                        <MudItem xs="12">
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(!isConnected && user?.Id != Guid.Empty)" Class="py-4">Continue</MudButton>
+                        </MudItem>
+                    }
+                </MudGrid>
+            </EditForm>
+        }
+    </MudContainer>
+</MudMainContent>
 
 @code {
     [Inject] public NavigationManager NavigationManager { get; set; }
@@ -112,59 +124,45 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        // Check if a connection to the server can be made
         isConnected = await MemeChatRepository.IsConnectedToServer();
 
-        if (!string.IsNullOrEmpty(Nickname) && Nickname != await MemeChatRepository.GetCurrentNickname())
+        if (isConnected && !string.IsNullOrWhiteSpace(Nickname) && Nickname != await MemeChatRepository.GetCurrentNickname())
         {
-            if (isConnected)
-            {
-                user = await MemeChatRepository.GetUserByNickname();
-            }
+            // Get the user
+            user = await MemeChatRepository.GetUserByNickname(Nickname);
         }
-        else
+        else if (isConnected)
         {
-            isCurrent = true;
-
             try
             {
-                if (isConnected)
-                {
-                    user = await MemeChatRepository.GetCurrentUser();
-                }
+                // Get the current or new user
+                isCurrent = true;
+                user = await MemeChatRepository.GetCurrentUser() ?? new();
             }
-            catch { }
-
-            if (user == null)
-            {
-                user = new User();
-            }
+            catch { /* Databse error */ }
         }
     }
 
     private async Task SaveUser()
     {
-        if (!isConnected)
-        {
-            return;
-        }
-
-        if (isCurrent)
+        // User can only be saved if there is a internet connection and not another user
+        if (isConnected && isCurrent)
         {
             try
             {
+                // Save user
                 bool isSaved = await MemeChatRepository.SaveUserAsync(user);
 
                 if (isSaved)
                 {
+                    // Save the credentials to the device storage
                     await SecureStorage.SetAsync(Constants.SecureStorage_Nickname, user.Nickname);
+                    // Navigate back to home
                     NavigationManager.NavigateTo("home");
                 }
             }
-            catch { }
-        }
-        else
-        {
-            NavigationManager.NavigateTo("chat/" + Nickname);
+            catch { /* Database error */ }
         }
     }
 

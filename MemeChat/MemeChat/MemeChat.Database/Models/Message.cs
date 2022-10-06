@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 
 namespace MemeChat.Models
 {
@@ -7,10 +6,8 @@ namespace MemeChat.Models
     {
         [Key]
         public long Id { get; set; }
-        [MaybeNull]
-        public string? URL { get; set; }
-        [MaybeNull]
-        public string? Base64String { get; set; }
+        [Required]
+        public string URL { get; set; }
         public DateTime SendAt { get; set; } = DateTime.UtcNow;
     }
 }

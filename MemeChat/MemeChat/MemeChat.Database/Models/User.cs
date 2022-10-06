@@ -33,6 +33,21 @@ namespace MemeChat.Models
         [Required]
         internal DateTime CreatedAd { get; set; } = DateTime.UtcNow;
 
+        public override bool Equals(object obj)
+        {
+            if (obj is User user)
+            {
+                return string.Equals(Nickname, user.Nickname, StringComparison.OrdinalIgnoreCase)
+                    && CreatedAd.Equals(user.CreatedAd);
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Nickname.GetHashCode() ^ CreatedAd.GetHashCode();
+        }
+
         public void Map(User user)
         {
             if (user == null)

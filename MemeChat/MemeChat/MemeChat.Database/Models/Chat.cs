@@ -10,6 +10,6 @@ namespace MemeChat.Models
         public User User_1 { get; set; }
         [Required]
         public User User_2 { get; set; }
-        public List<Message>? Messages { get; set; }
+        public virtual List<Message> Messages { get; set; } = new List<Message>();
     }
 }

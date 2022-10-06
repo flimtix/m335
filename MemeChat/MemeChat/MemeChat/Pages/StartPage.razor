@@ -1,18 +1,40 @@
 ﻿@page "/start"
+@using MemeChat.Database.Interfaces
 
-<MudStack Spacing="3" AlignItems="AlignItems.Center" Justify="Justify.Center" Class="py-5">
-    <MudStack Spacing="3" AlignItems="AlignItems.Center" Justify="Justify.Center" Class="flex-wrap" Row="true">
-        <MudAvatar Image="@RandomCollection[0]" Style="height:90px; width:90px; font-size:2rem;" />
-        <MudAvatar Image="@RandomCollection[1]" Style="height:90px; width:90px; font-size:2rem;" />
-        <MudAvatar Image="@RandomCollection[2]" Style="height:90px; width:90px; font-size:2rem;" />
-        <MudAvatar Image="@RandomCollection[3]" Style="height:90px; width:90px; font-size:2rem;" />
-    </MudStack>
-    <div>
-        <MudText Align="Align.Center" Typo="Typo.h4" Color="Color.Primary">Welcome to MemeChat</MudText>
-        <MudText Align="Align.Center" Typo="Typo.subtitle1" Class="px-5">The best messenger which allows only memes!</MudText>
-    </div>
-    <MudStack Justify="Justify.Center" Row="true">
-        <MudButton Color="Color.Primary" Size="Size.Large" Variant="Variant.Filled" Link="register">Sign Up</MudButton>
-        <MudButton Color="Color.Secondary" Size="Size.Large" Variant="Variant.Filled" Link="login">Sign In</MudButton>
-    </MudStack>
-</MudStack>
+<MudAppBar Elevation="1" Fixed="true" Dense="true">
+    <MudText Align="Align.Center" Typo="Typo.h5" Class="user-select-none">MemeChat</MudText>
+</MudAppBar>
+
+<MudMainContent>
+    <MudContainer MaxWidth="MaxWidth.Large">
+        <MudStack Spacing="3" AlignItems="AlignItems.Center" Justify="Justify.Center" Class="py-5">
+            <MudStack Spacing="3" AlignItems="AlignItems.Center" Justify="Justify.Center" Class="flex-wrap" Row="true">
+                <MudAvatar Image="@RandomCollection[0]" Style="height:90px; width:90px; font-size:2rem;" />
+                <MudAvatar Image="@RandomCollection[1]" Style="height:90px; width:90px; font-size:2rem;" />
+                <MudAvatar Image="@RandomCollection[2]" Style="height:90px; width:90px; font-size:2rem;" />
+                <MudAvatar Image="@RandomCollection[3]" Style="height:90px; width:90px; font-size:2rem;" />
+            </MudStack>
+            <div>
+                <MudText Align="Align.Center" Typo="Typo.h4" Color="Color.Primary">Welcome to MemeChat</MudText>
+                <MudText Align="Align.Center" Typo="Typo.subtitle1" Class="px-5">The best messenger which allows only memes!</MudText>
+            </div>
+            <MudStack Justify="Justify.Center" Row="true">
+                <MudButton Color="Color.Primary" Size="Size.Large" Variant="Variant.Filled" Link="register">Sign Up</MudButton>
+                <MudButton Color="Color.Secondary" Size="Size.Large" Variant="Variant.Filled" Link="login">Sign In</MudButton>
+            </MudStack>
+        </MudStack>
+    </MudContainer>
+</MudMainContent>
+
+@code {
+    [Inject] public NavigationManager NavigationManager { get; set; }
+    [Inject] public IMemeChatRepository MemeChatRepository { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (await MemeChatRepository.GetCurrentUser() != null)
+        {
+            NavigationManager.NavigateTo("home");
+        }
+    }
+}

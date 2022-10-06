@@ -20,70 +20,76 @@ namespace MemeChat.Database.Repositories
         {
             var accessType = Connectivity.Current.NetworkAccess;
 
-            return (accessType == NetworkAccess.Internet || accessType == NetworkAccess.ConstrainedInternet) 
-                && serverDbContext != null 
+            // Check if the user is connected to the internet and has a connection to the server
+            return (accessType == NetworkAccess.Internet || accessType == NetworkAccess.ConstrainedInternet)
+                && serverDbContext != null
                 && await serverDbContext.Database.CanConnectAsync();
         }
 
-        public async Task<bool> CreateDatabaseAsync()
+        public bool CreateDatabase()
         {
-            return await clientDbContext.Database.EnsureCreatedAsync() && await IsConnectedToServer() && await serverDbContext.Database.EnsureCreatedAsync();
+            try
+            {
+                clientDbContext.Database.EnsureCreated();
+
+                bool isConnected = Task.Run(() => IsConnectedToServer()).Result;
+                if (isConnected)
+                {
+                    serverDbContext.Database.EnsureCreated();
+                }
+
+                return isConnected;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        public void SeedDatabase()
+        public async Task SyncDatabase()
         {
-            throw new NotImplementedException();
-        }
-
-        private async Task SyncUserToLocal(User user)
-        {
-            if (user == null)
+            // Sync is only available when the user is connected to the internet
+            if (!await IsConnectedToServer())
             {
                 return;
             }
 
-            var localUser = await clientDbContext.Users.FirstOrDefaultAsync(u => u.Nickname == user.Nickname);
+            // Get chats with all data from the server
+            var users = await serverDbContext.Users.ToListAsync();
+            var chats = await serverDbContext.Chats
+                .Include(u => u.User_1)
+                .Include(u => u.User_2)
+                .Include(m => m.Messages)
+                .ToListAsync();
 
-            if (localUser == null)
-            {
-                localUser = new();
-                localUser.Map(user);
-                await clientDbContext.Users.AddAsync(user);
-            }
-            else
-            {
-                localUser.Map(user);
-                clientDbContext.Users.Update(localUser);
-            }
+            // Delte local database
+            await clientDbContext.Database.EnsureDeletedAsync();
+            await clientDbContext.Database.EnsureCreatedAsync();
+
+            // Add users to the client database
+            await clientDbContext.Users.AddRangeAsync(users);
+            await clientDbContext.Chats.AddRangeAsync(chats);
+
+            // Save changes
+            await clientDbContext.SaveChangesAsync();
         }
 
-        public Task<User> GetUserByNickname()
+        public async Task<User> GetUserByNickname(string nickname)
         {
-            throw new NotImplementedException();
+            return await clientDbContext.Users.FirstOrDefaultAsync(u => u.Nickname == nickname);
         }
 
         public async Task<string> GetCurrentNickname()
         {
-            return await SecureStorage.Default.GetAsync(Constants.SecureStorage_Nickname);
+            // Get the current nickname from the device storage
+            string nickname = await SecureStorage.Default.GetAsync(Constants.SecureStorage_Nickname);
+
+            return string.IsNullOrWhiteSpace(nickname) ? string.Empty : nickname;
         }
 
         public async Task<User> GetCurrentUser()
         {
-            string nickname = await GetCurrentNickname();
-
-            User user = null;
-
-            if (await IsConnectedToServer())
-            {
-                user = await serverDbContext.Users.FirstOrDefaultAsync(u => u.Nickname == nickname);
-                await SyncUserToLocal(user);
-            }
-            else
-            {
-                user = await clientDbContext.Users.FirstOrDefaultAsync(u => u.Nickname == nickname);
-            }
-
-            return user;
+            return await GetUserByNickname(await GetCurrentNickname());
         }
 
         public async Task<bool> SaveUserAsync(User user)
@@ -106,9 +112,26 @@ namespace MemeChat.Database.Repositories
             return false;
         }
 
+        public async Task<Dictionary<string, Chat>> GetChatsWithUser()
+        {
+            var chats = new Dictionary<string, Chat>();
+
+            try
+            {
+                var nickname = await GetCurrentNickname();
+
+                clientDbContext.Chats.Where(u => u.User_1.Nickname == nickname || u.User_2.Nickname == nickname);
+
+            }
+            catch { /* Database error */ }
+
+            return chats;
+        }
+
         public async Task<bool> AreCredentialsValid(ILoginCredentials credentials)
         {
             return await IsConnectedToServer() && await serverDbContext.Users.AnyAsync(u => u.Nickname == credentials.Nickname && u.Password == credentials.Password);
         }
+
     }
 }

@@ -3,46 +3,54 @@
 @using MemeChat.Database.Interfaces
 @using MemeChat.Models
 
-<MudButton StartIcon="@Icons.Filled.KeyboardBackspace" Variant="Variant.Text" Link="start" Class="my-3">
-    Enter Your Credentials
-</MudButton>
+<MudAppBar Elevation="1" Fixed="true" Dense="true">
+    <MudText Align="Align.Center" Typo="Typo.h5" Class="user-select-none">MemeChat</MudText>
+</MudAppBar>
 
-@if (!isConnected)
-{
-    <MudAlert Severity="Severity.Error">An internet connection is required for the login!</MudAlert>
-}
+<MudMainContent>
+    <MudContainer MaxWidth="MaxWidth.Large">
+        <MudButton StartIcon="@Icons.Filled.KeyboardBackspace" Variant="Variant.Text" Link="start" Class="my-3">
+            Enter Your Credentials
+        </MudButton>
 
-<EditForm Model="@credentials" OnSubmit="@(async () => await LoginUser())">
-    <DataAnnotationsValidator />
-    <MudGrid>
-        <MudItem xs="12">
-            <MudTextField Label="Nickname"
-                          HelperText="With this name you will be found"
-                          HelperTextOnFocus="true"
-                          @bind-Value="credentials.Nickname"
-                          For="@(() => credentials.Nickname)" />
-        </MudItem>
-        <MudItem xs="12">
-            <MudTextField Label="Password"
-                          InputType="passwordInput"
-                          @bind-Value="credentials.Password"
-                          For="@(() => credentials.Password)"
-                          Adornment="Adornment.End"
-                          AdornmentIcon="@passwordInputIcon"
-                          OnAdornmentClick="TogglePassword" />
-        </MudItem>
-        @if (!isValid)
+        @if (!isConnected)
         {
-            <MudItem xs="12">
-                <MudAlert Severity="Severity.Warning">The credentials are not valid!</MudAlert>
-            </MudItem>
+            <MudAlert Severity="Severity.Error">An internet connection is required for the login!</MudAlert>
         }
-        <MudItem xs="12">
-            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(!isConnected)" Class="py-4">Continue</MudButton>
-        </MudItem>
-    </MudGrid>
-</EditForm>
 
+        <EditForm Model="@credentials" OnSubmit="@(async () => await LoginUser())">
+            <DataAnnotationsValidator />
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField Label="Nickname"
+                                  HelperText="With this name you will be found"
+                                  HelperTextOnFocus="true"
+                                  @bind-Value="credentials.Nickname"
+                                  For="@(() => credentials.Nickname)" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField Label="Password"
+                                  InputType="passwordInput"
+                                  @bind-Value="credentials.Password"
+                                  For="@(() => credentials.Password)"
+                                  Adornment="Adornment.End"
+                                  AdornmentIcon="@passwordInputIcon"
+                                  OnAdornmentClick="TogglePassword" />
+                </MudItem>
+                @if (!isValid)
+                {
+                    <MudItem xs="12">
+                        <MudAlert Severity="Severity.Warning">The credentials are not valid!</MudAlert>
+                    </MudItem>
+                }
+                <MudItem xs="12">
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(!isConnected)" Class="py-4">Continue</MudButton>
+                </MudItem>
+            </MudGrid>
+        </EditForm>
+
+    </MudContainer>
+</MudMainContent>
 
 @code {
     [Inject] public NavigationManager NavigationManager { get; set; }

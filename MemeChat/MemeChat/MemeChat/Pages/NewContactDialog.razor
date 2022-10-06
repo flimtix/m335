@@ -1,0 +1,45 @@
+﻿<MudDialog @bind-IsVisible="IsVisible" Options="Options">
+    <TitleContent>
+        <MudText Typo="Typo.subtitle1">Add a new Contact</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="contact" HelperText="Search by Nickname" />
+        
+        @if (!found)
+        {
+            <MudAlert Severity="Severity.Info">There is no user with this nickname</MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButtonGroup>
+            <MudIconButton Icon="@Icons.Filled.Close" OnClick="(() => IsVisible = false)" />
+            <MudIconButton Icon="@Icons.Filled.Check" OnClick="AddNewContact" />
+        </MudButtonGroup>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public DialogOptions Options { get; set; }
+    [Parameter] public Func<string, bool> DoesUserExist { get; set; }
+    [Parameter] public Action<string> OnNewContact { get; set; }
+
+    private string contact;
+    private bool found;
+
+    protected override void OnParametersSet()
+    {
+        found = false;
+        contact = string.Empty;
+    }
+
+    public void AddNewContact()
+    {
+        found = DoesUserExist.Invoke(contact);
+
+        IsVisible = false;
+
+        OnNewContact.Invoke(contact);
+    }
+
+}

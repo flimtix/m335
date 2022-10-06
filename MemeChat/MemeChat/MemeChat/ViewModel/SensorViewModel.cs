@@ -39,7 +39,7 @@
                 stream.CopyTo(ms);
                 var bytes = ms.ToArray();
 
-                return Convert.ToBase64String(bytes);
+                return "data:image/png;base64," + Convert.ToBase64String(bytes);
             }
 
             return string.Empty;

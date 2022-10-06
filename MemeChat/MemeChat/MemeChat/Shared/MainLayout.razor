@@ -1,31 +1,22 @@
-﻿@inherits LayoutComponentBase
+﻿@using MemeChat.Database.Repositories
+@inherits LayoutComponentBase
 
-<MudThemeProvider @bind-IsDarkMode="@isDarkMode" Theme="theme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
+<MudThemeProvider @bind-IsDarkMode="@IsDarkMode" Theme="theme" />
 
-<MudLayout>    
-    <MudAppBar Elevation="1" Fixed="true" Dense="true">
-        <MudText Align="Align.Left" Typo="Typo.h5" Class="user-select-none">MemeChat</MudText>
-        <MudSpacer />
-        <MudIconButton Icon="@Icons.Filled.PersonAddAlt1" Color="Color.Inherit" Link="start" />
-        <MudIconButton Icon="@Icons.Filled.Settings" Color="Color.Inherit" Link="settings" />
-        <MudToggleIconButton @bind-Toggled="@isDarkMode" Color="Color.Inherit" Icon="@Icons.Filled.LightMode" ToggledIcon="@Icons.Filled.DarkMode" />
-    </MudAppBar>
-
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Large">
-            @Body
-        </MudContainer>
-    </MudMainContent>
+<MudLayout>
+    <CascadingValue Value="@IsDarkMode">
+        @Body
+    </CascadingValue>
 </MudLayout>
 
 @code {
     private MudTheme theme = new();
-    private bool isDarkMode = false;
+    public bool IsDarkMode { get; set; } = false;
 
     private void ToggleDarkMode()
     {
-        isDarkMode = !isDarkMode;
+        IsDarkMode = !IsDarkMode;
     }
 }

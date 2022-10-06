@@ -1,6 +1,7 @@
 ﻿using MemeChat.Database.Context;
 using MemeChat.Database.Interfaces;
 using MemeChat.Database.Repositories;
+using MemeChat.ViewModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
@@ -11,52 +12,54 @@ namespace MemeChat;
 
 public static class MauiProgram
 {
-	public static MauiApp CreateMauiApp()
-	{
-		var builder = MauiApp.CreateBuilder();
-		builder
-			.UseMauiApp<App>()
-			.ConfigureFonts(fonts =>
-			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-			});
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            });
 
-		builder.Services.AddMauiBlazorWebView();
+        builder.Services.AddMauiBlazorWebView();
 #if DEBUG
-		builder.Services.AddBlazorWebViewDeveloperTools();
+        builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
 
-		// MudBlazor UI
-		builder.Services.AddMudServices();
+        // MudBlazor UI
+        builder.Services.AddMudServices();
 
-		// Datenbanken mit Dependency Injection hinterlegen
-		builder.Services.AddDbContext<ClientDbContext>(options => options.UseSqlite(Constants.LocalDatabasePath));
-		builder.Services.AddDbContext<ServerDbContext>(options =>
-			options.UseMySql(Constants.ServerDbConnectionString, ServerVersion.Create(10, 5, 12, ServerType.MariaDb)));
+        // Datenbanken mit Dependency Injection hinterlegen
+        builder.Services.AddDbContext<ClientDbContext>(options => options.UseSqlite(Constants.LocalDatabasePath));
+        builder.Services.AddDbContext<ServerDbContext>(options =>
+            options.UseMySql(Constants.ServerDbConnectionString, ServerVersion.Create(10, 5, 12, ServerType.MariaDb)));
         // m => m.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)
 
         // Repositories hinterlegen
         builder.Services.AddTransient<IMemeChatRepository, MemeChatRepository>();
+        builder.Services.AddTransient<IndexViewModel>();
 
-		var app = builder.Build();
+        var app = builder.Build();
 
-		using (var scope = app.Services.CreateScope())
-		{
-			try
-			{
-				var repository = scope.ServiceProvider.GetService<IMemeChatRepository>();
-				repository.CreateDatabaseAsync();
-			}
-			catch (Exception ex)
-			{
-				if (Debugger.IsAttached)
-				{
-					Debugger.Break();
-					Debugger.Log((int)LogLevel.Critical, nameof(LogLevel.Critical), "Init Databse throws error: " + ex.Message);
-				}
-			}
-		}
+        using (var scope = app.Services.CreateScope())
+        {
+            try
+            {
+                // Create the Database
+                var repository = scope.ServiceProvider.GetService<IMemeChatRepository>();
+                repository.CreateDatabase();
+            }
+            catch (Exception ex)
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                    Debugger.Log((int)LogLevel.Critical, nameof(LogLevel.Critical), "Init Databse throws error: " + ex.Message);
+                }
+            }
+        }
 
-		return app;
-	}
+        return app;
+    }
 }
