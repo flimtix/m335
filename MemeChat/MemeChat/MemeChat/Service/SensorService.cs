@@ -29,7 +29,7 @@
             return string.Empty;
         }
 
-        private static async Task<string> CreateBase64String(FileResult photo)
+        public static async Task<string> CreateBase64String(FileResult photo)
         {
             if (photo != null)
             {

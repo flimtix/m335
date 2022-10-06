@@ -18,10 +18,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="NewContactDialog.razor" />
 	  <None Remove="_Imports.razor" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Content Include="NewContactDialog.razor">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </Content>
 	  <Content Include="_Imports.razor">
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </Content>
