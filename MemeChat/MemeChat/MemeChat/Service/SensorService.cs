@@ -1,6 +1,6 @@
-﻿namespace MemeChat.ViewModel
+﻿namespace MemeChat.Service
 {
-    public static class SensorViewModel
+    public static class SensorService
     {
         public static async Task<string> TakePhoto()
         {

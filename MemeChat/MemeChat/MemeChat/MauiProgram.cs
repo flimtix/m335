@@ -39,6 +39,7 @@ public static class MauiProgram
         // Repositories hinterlegen
         builder.Services.AddTransient<IMemeChatRepository, MemeChatRepository>();
         builder.Services.AddTransient<IndexViewModel>();
+        builder.Services.AddTransient<ChatsViewModel>();
 
         var app = builder.Build();
 

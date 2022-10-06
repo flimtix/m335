@@ -17,19 +17,18 @@ namespace MemeChat.ViewModel
 
         public string CurrentNickname { get; set; } = string.Empty;
 
-        public bool IsConnected { get; private set; }
         public string SearchName { get; set; } = string.Empty;
-        public HashSet<User> Users => Chats.Select(c => c.Value.User_1.Nickname == CurrentNickname ? c.Value.User_2 : c.Value.User_1)
-                                                .Where(s => s.Name.Contains(SearchName, StringComparison.OrdinalIgnoreCase))
-                                                .ToHashSet();
+        public ICollection<User> Users => FilterUsers();
         public Dictionary<string, Chat> Chats { get; private set; } = new();
 
         public async Task LoadData()
         {
-            IsConnected = await memeChatRepository.IsConnectedToServer();
-
             // Sync database
-            await memeChatRepository.SyncDatabase();
+            try
+            {
+                await memeChatRepository.SyncDatabase();
+            }
+            catch { /* Databse error */ }
 
             // User must login first
             if (await memeChatRepository.GetCurrentUser() == null)
@@ -43,9 +42,17 @@ namespace MemeChat.ViewModel
             Chats = await memeChatRepository.GetChatsWithUser();
         }
 
+        private ICollection<User> FilterUsers()
+        {
+            return Chats.OrderBy(c => c.Value.Messages.Last().SendAt)
+            .Select(c => c.Value.User_1.Nickname == CurrentNickname ? c.Value.User_2 : c.Value.User_1)
+            .Where(s => s.Name.Contains(SearchName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        }
+
         public void NavigateToChat(string nickname)
         {
-            navigationManager.NavigateTo("/chat/" + nickname);
+            navigationManager.NavigateTo("chat/" + nickname);
         }
 
         public bool DoesUserWithNicknameExist(string nickname)

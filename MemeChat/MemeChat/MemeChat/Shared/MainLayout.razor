@@ -1,7 +1,7 @@
 ﻿@using MemeChat.Database.Repositories
 @inherits LayoutComponentBase
 
-<MudDialogProvider FullWidth="true" Position="DialogPosition.Center" CloseOnEscapeKey="true" />
+<MudDialogProvider FullWidth="true" Position="DialogPosition.Center" CloseButton="false" CloseOnEscapeKey="true" />
 <MudSnackbarProvider />
 <MudThemeProvider @bind-IsDarkMode="@IsDarkMode" Theme="theme" />
 

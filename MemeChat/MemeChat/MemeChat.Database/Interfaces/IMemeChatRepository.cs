@@ -12,6 +12,8 @@ namespace MemeChat.Database.Interfaces
         Task<User> GetCurrentUser();
         Task<bool> SaveUserAsync(User user);
         Task<Dictionary<string, Chat>> GetChatsWithUser();
+        Task<Chat> GetChat(User sender, User current);
+        Task<bool> SaveMessageAsync(Message message, User sender, User current);
         Task<bool> AreCredentialsValid(ILoginCredentials credentials);
     }
 }

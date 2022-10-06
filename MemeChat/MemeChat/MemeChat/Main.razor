@@ -5,7 +5,8 @@
 	</Found>
 	<NotFound>
 		<LayoutView Layout="@typeof(MainLayout)">
-			<p role="alert">Sorry, there's nothing at this address.</p>
+			<MudAlert Severity="Severity.Error">The requested page could not be found.</MudAlert>
+			<MudButton FullWidth="true" Variant="Variant.Filled" Link="home">Back to home</MudButton>
 		</LayoutView>
 	</NotFound>
 </Router>

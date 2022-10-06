@@ -32,6 +32,18 @@
 
     protected override async Task OnInitializedAsync()
     {
+        try
+        {
+            await RedirectToHome();
+            await MemeChatRepository.SyncDatabase();
+            await RedirectToHome();
+        }
+        catch
+        { /* Databse error */ }
+    }
+
+    private async Task RedirectToHome()
+    {
         if (await MemeChatRepository.GetCurrentUser() != null)
         {
             NavigationManager.NavigateTo("home");

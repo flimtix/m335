@@ -2,6 +2,7 @@
 using MemeChat.Database.Interfaces;
 using MemeChat.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace MemeChat.Database.Repositories
 {
@@ -21,7 +22,7 @@ namespace MemeChat.Database.Repositories
             var accessType = Connectivity.Current.NetworkAccess;
 
             // Check if the user is connected to the internet and has a connection to the server
-            return (accessType == NetworkAccess.Internet || accessType == NetworkAccess.ConstrainedInternet)
+            return (accessType == NetworkAccess.Internet || accessType == NetworkAccess.ConstrainedInternet || accessType == NetworkAccess.Unknown)
                 && serverDbContext != null
                 && await serverDbContext.Database.CanConnectAsync();
         }
@@ -31,17 +32,13 @@ namespace MemeChat.Database.Repositories
             try
             {
                 clientDbContext.Database.EnsureCreated();
+                serverDbContext.Database.EnsureCreated();
 
-                bool isConnected = Task.Run(() => IsConnectedToServer()).Result;
-                if (isConnected)
-                {
-                    serverDbContext.Database.EnsureCreated();
-                }
-
-                return isConnected;
+                return true;
             }
             catch
             {
+                Debugger.Break();
                 return false;
             }
         }
@@ -76,6 +73,11 @@ namespace MemeChat.Database.Repositories
 
         public async Task<User> GetUserByNickname(string nickname)
         {
+            if (string.IsNullOrWhiteSpace(nickname))
+            {
+                return null;
+            }
+
             return await clientDbContext.Users.FirstOrDefaultAsync(u => u.Nickname == nickname);
         }
 
@@ -92,26 +94,6 @@ namespace MemeChat.Database.Repositories
             return await GetUserByNickname(await GetCurrentNickname());
         }
 
-        public async Task<bool> SaveUserAsync(User user)
-        {
-            if (user == null)
-            {
-                return false;
-            }
-
-            if (await IsConnectedToServer())
-            {
-                await serverDbContext.Users.AddAsync(user);
-                await clientDbContext.Users.AddAsync(user);
-                await serverDbContext.SaveChangesAsync();
-                await clientDbContext.SaveChangesAsync();
-
-                return true;
-            }
-
-            return false;
-        }
-
         public async Task<Dictionary<string, Chat>> GetChatsWithUser()
         {
             var chats = new Dictionary<string, Chat>();
@@ -120,18 +102,77 @@ namespace MemeChat.Database.Repositories
             {
                 var nickname = await GetCurrentNickname();
 
-                clientDbContext.Chats.Where(u => u.User_1.Nickname == nickname || u.User_2.Nickname == nickname);
+                var dbChats = await clientDbContext.Chats.Where(u => u.User_1.Nickname == nickname || u.User_2.Nickname == nickname).ToListAsync();
 
+                foreach (var chat in dbChats)
+                {
+                    chats.Add(chat.User_1.Nickname == nickname ? chat.User_2.Nickname : chat.User_1.Nickname, chat);
+                }
             }
             catch { /* Database error */ }
 
             return chats;
         }
 
+        public async Task<bool> SaveUserAsync(User user)
+        {
+            if (user == null && !await IsConnectedToServer())
+            {
+                return false;
+            }
+
+            await serverDbContext.Users.AddAsync(user);
+            await clientDbContext.Users.AddAsync(user);
+            await serverDbContext.SaveChangesAsync();
+            await clientDbContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> SaveMessageAsync(Message message, User sender, User current)
+        {
+            if (message == null || sender == null || current == null || !await IsConnectedToServer())
+            {
+                return false;
+            }
+
+            var dbServerChat = await serverDbContext.Chats.FirstOrDefaultAsync(u => u.User_1 == sender && u.User_2 == current || u.User_1 == current && u.User_2 == sender);
+
+            if (dbServerChat == null)
+            {
+                var dbChat = new Chat()
+                {
+                    User_1 = sender,
+                    User_2 = current,
+                    Messages = new List<Message>() { message }
+                };
+
+                await serverDbContext.Chats.AddAsync(dbChat.Clone());
+                await clientDbContext.Chats.AddAsync(dbChat.Clone());
+            }
+            else
+            {
+                dbServerChat.Messages.Add(message.Clone());
+            }
+
+            await serverDbContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<Chat> GetChat(User sender, User current)
+        {
+            if (!await IsConnectedToServer())
+            {
+                return null;
+            }
+
+            return await serverDbContext.Chats.FirstOrDefaultAsync(u => u.User_1 == sender && u.User_2 == current || u.User_1 == current && u.User_2 == sender);
+        }
+
         public async Task<bool> AreCredentialsValid(ILoginCredentials credentials)
         {
             return await IsConnectedToServer() && await serverDbContext.Users.AnyAsync(u => u.Nickname == credentials.Nickname && u.Password == credentials.Password);
         }
-
     }
 }

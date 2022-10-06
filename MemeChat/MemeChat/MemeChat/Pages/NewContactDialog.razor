@@ -1,8 +1,6 @@
-﻿<MudDialog @bind-IsVisible="IsVisible" Options="Options">
-    <TitleContent>
-        <MudText Typo="Typo.subtitle1">Add a new Contact</MudText>
-    </TitleContent>
+﻿<MudDialog @bind-IsVisible="IsVisible" Options="options">
     <DialogContent>
+        <MudText Typo="Typo.h6">Add a new Contact</MudText>
         <MudTextField @bind-Value="contact" HelperText="Search by Nickname" />
 
         @if (!found)
@@ -20,15 +18,16 @@
 
 @code {
     [Parameter] public bool IsVisible { get; set; }
-    [Parameter] public DialogOptions Options { get; set; }
     [Parameter] public Func<string, bool> DoesUserExist { get; set; }
     [Parameter] public Action<string> OnNewContact { get; set; }
 
+    private DialogOptions options;
     private string contact;
     private bool found;
 
     protected override void OnParametersSet()
     {
+        options = new DialogOptions { CloseButton = false, NoHeader = true, DisableBackdropClick = true };
         found = true;
         contact = string.Empty;
     }

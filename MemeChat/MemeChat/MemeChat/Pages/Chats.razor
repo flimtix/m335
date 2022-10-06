@@ -1,0 +1,68 @@
+﻿@page "/chat"
+@page "/chat/{Nickname}"
+@using MemeChat.ViewModel
+
+<MudAppBar Elevation="1" Fixed="true" Dense="true">
+    <MudIconButton Icon="@Icons.Filled.KeyboardBackspace" Color="Color.Inherit" Link="home" />
+    <MudSpacer />
+    <MudText Align="Align.Left" Typo="Typo.h5" Class="user-select-none">MemeChat</MudText>
+    <MudSpacer />
+    <MudIconButton Icon="@Icons.Filled.Settings" Color="Color.Inherit" Link="@("contact/" + ChatsViewModel?.Sender?.Nickname)" />
+</MudAppBar>
+
+<MudMainContent>
+    <MudContainer MaxWidth="MaxWidth.Large">
+        @if (ChatsViewModel?.Sender == null)
+        {
+            <MudAlert Severity="Severity.Error">The recipient could not be found.</MudAlert>
+        }
+        else
+        {
+            <div class="position-relative" style="height: 93vh">
+                @if (ChatsViewModel?.Chat?.Messages == null || !ChatsViewModel.Chat.Messages.Any())
+                {
+                    <MudStack Justify="Justify.Center" Spacing="2">
+                        <MudText Typo="Typo.subtitle2" Class="px-3">There are no memes shared yet.</MudText>
+                        <MudIconButton Icon="@Icons.Filled.Refresh" OnClick="@(() => StateHasChanged())" />
+                    </MudStack>
+                }
+                else
+                {
+                    <div class="overflow-auto" style="height: 93vh">
+                        <MudVirtualize IsEnabled="true" Items="ChatsViewModel.Messages" Context="message">
+                            <MudStack Spacing="0" Class="py-2" AlignItems="@(message.SendBy == ChatsViewModel.CurrentUser ? AlignItems.End : AlignItems.Start)">
+                                <MudImage ObjectFit="ObjectFit.Cover" Src="@message.URL" Elevation="25" Fluid="true" Class="rounded-lg" Style="width: 45%" />
+                                <MudText Typo="Typo.overline">@message.SendAt.ToLocalTime().ToString("g")</MudText>
+                            </MudStack>
+                        </MudVirtualize>
+                    </div>
+                }
+
+                <div class="position-absolute bottom-0 start-50 translate-middle-x my-5">
+                    <MudFab Color="Color.Primary"
+                        Icon="@Icons.Material.Filled.Add"
+                        Disabled="@(!ChatsViewModel.IsConnected)"
+                        OnClick="ChatsViewModel.SendMeme" />
+                </div>
+            </div>
+        }
+    </MudContainer>
+</MudMainContent>
+
+@code {
+    [Inject] public NavigationManager NavigationManager { get; set; }
+    [Inject] public ChatsViewModel ChatsViewModel { get; set; }
+
+    [Parameter] public string Nickname { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Nickname))
+        {
+            NavigationManager.NavigateTo("home");
+            return;
+        }
+
+        await ChatsViewModel.LoadData(Nickname, () => StateHasChanged());
+    }
+}
