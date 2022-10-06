@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MemeChat.Database.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace MemeChat.Models
 {
-    public class User
+    public class User : ILoginCredentials
     {
         [Key]
         public Guid Id { get; set; } = Guid.Empty;
@@ -23,7 +24,7 @@ namespace MemeChat.Models
         public string Password { get; set; } = string.Empty;
         [MaybeNull]
         [DataType(DataType.ImageUrl)]
-        public string? Avatar { get; set; }
+        public string Avatar { get; set; }
         [Required]
         [DataType(DataType.MultilineText)]
         public string About { get; set; } = string.Empty;

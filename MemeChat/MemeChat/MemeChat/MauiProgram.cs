@@ -45,7 +45,7 @@ public static class MauiProgram
 			try
 			{
 				var repository = scope.ServiceProvider.GetService<IMemeChatRepository>();
-				repository.CreateDatabase();
+				repository.CreateDatabaseAsync();
 			}
 			catch (Exception ex)
 			{

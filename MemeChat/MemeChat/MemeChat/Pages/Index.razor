@@ -13,7 +13,7 @@ Welcome to your new app.
     protected override async Task OnInitializedAsync()
     {
         if (string.IsNullOrEmpty(await MemeChatRepository.GetCurrentNickname())){
-            NavigationManager.NavigateTo("start", true);
+            NavigationManager.NavigateTo("start");
         }
     }
 

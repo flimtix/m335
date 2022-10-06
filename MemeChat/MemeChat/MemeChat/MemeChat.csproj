@@ -33,6 +33,7 @@
         <Company>pebe AG</Company>
         <Description>Teile die wichtigen Dinge im Leben. Memes!</Description>
         <Nullable>disable</Nullable>
+        <DefaultLanguage>de-ch</DefaultLanguage>
     </PropertyGroup>
 
     <ItemGroup>
@@ -51,10 +52,6 @@
 
         <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="ViewModel\" />
     </ItemGroup>
 
     <ItemGroup>

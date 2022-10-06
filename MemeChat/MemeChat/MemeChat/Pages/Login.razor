@@ -1,0 +1,100 @@
+﻿@page "/login"
+
+@using MemeChat.Database.Interfaces
+@using MemeChat.Models
+
+<MudButton StartIcon="@Icons.Filled.KeyboardBackspace" Variant="Variant.Text" Link="start" Class="my-3">
+    Enter Your Credentials
+</MudButton>
+
+@if (!isConnected)
+{
+    <MudAlert Severity="Severity.Error">An internet connection is required for the login!</MudAlert>
+}
+
+<EditForm Model="@credentials" OnSubmit="@(async () => await LoginUser())">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12">
+            <MudTextField Label="Nickname"
+                          HelperText="With this name you will be found"
+                          HelperTextOnFocus="true"
+                          @bind-Value="credentials.Nickname"
+                          For="@(() => credentials.Nickname)" />
+        </MudItem>
+        <MudItem xs="12">
+            <MudTextField Label="Password"
+                          InputType="passwordInput"
+                          @bind-Value="credentials.Password"
+                          For="@(() => credentials.Password)"
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@passwordInputIcon"
+                          OnAdornmentClick="TogglePassword" />
+        </MudItem>
+        @if (!isValid)
+        {
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Warning">The credentials are not valid!</MudAlert>
+            </MudItem>
+        }
+        <MudItem xs="12">
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(!isConnected)" Class="py-4">Continue</MudButton>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+
+@code {
+    [Inject] public NavigationManager NavigationManager { get; set; }
+    [Inject] public IMemeChatRepository MemeChatRepository { get; set; }
+
+    private ILoginCredentials credentials = new User();
+    private bool isValid = true;
+
+    private bool isConnected;
+
+    private bool isPasswordShown = false;
+    private InputType passwordInput = InputType.Password;
+    private string passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isConnected = await MemeChatRepository.IsConnectedToServer();
+    }
+
+    private async Task LoginUser()
+    {
+        if (!isConnected || string.IsNullOrWhiteSpace(credentials.Nickname) || string.IsNullOrWhiteSpace(credentials.Password) || credentials.Password.Length < 12)
+        {
+            return;
+        }
+
+        try
+        {
+            isValid = await MemeChatRepository.AreCredentialsValid(credentials);
+
+            if (isValid)
+            {
+                await SecureStorage.SetAsync(Constants.SecureStorage_Nickname, credentials.Nickname);
+                NavigationManager.NavigateTo("home");
+            }
+        }
+        catch { }
+    }
+
+    private void TogglePassword()
+    {
+        if (isPasswordShown)
+        {
+            isPasswordShown = false;
+            passwordInput = InputType.Password;
+            passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+        }
+        else
+        {
+            isPasswordShown = true;
+            passwordInput = InputType.Text;
+            passwordInputIcon = Icons.Material.Filled.Visibility;
+        }
+    }
+}

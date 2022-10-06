@@ -6,9 +6,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemeChat", "MemeChat\MemeCh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemeChat.Database", "MemeChat.Database\MemeChat.Database.csproj", "{6025FAE0-B34C-4E22-A419-226F0A1DBFB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemeChat.Components", "MemeChat.Components\MemeChat.Components.csproj", "{89887924-5CD5-43F1-88D1-84E856EAF8D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemeChat.Components", "MemeChat.Components\MemeChat.Components.csproj", "{89887924-5CD5-43F1-88D1-84E856EAF8D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemeChat.Test", "MemeChat.Test\MemeChat.Test.csproj", "{CC8B173A-CCCC-416A-B33E-DFC231513CF4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemeChat.Test", "MemeChat.Test\MemeChat.Test.csproj", "{CC8B173A-CCCC-416A-B33E-DFC231513CF4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

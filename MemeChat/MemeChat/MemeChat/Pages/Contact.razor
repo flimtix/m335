@@ -3,31 +3,44 @@
 @page "/contact/{Nickname}"
 @using MemeChat.Database.Interfaces
 @using MemeChat.Models
+@using MemeChat.ViewModel
 
-<MudButton StartIcon="@Icons.Filled.KeyboardBackspace" Variant="Variant.Text" Link="@(isCurrent ? "home" : "chat/" + Nickname)" Class="my-3">
+<MudButton StartIcon="@Icons.Filled.KeyboardBackspace" Variant="Variant.Text" Link="@(isCurrent ? "start" : "chat/" + Nickname)" Class="my-3">
     @(isCurrent ? "Fill Your Profile" : "Back")
 </MudButton>
 
-@if (user == null)
+@if (!isConnected)
+{
+    <MudAlert Severity="Severity.Warning">
+        No connection could be made to the server.
+        The login is not possible at the moment.
+        Please try again in 5 minutes.
+    </MudAlert>
+}
+else if (user == null)
 {
     <MudAlert Severity="Severity.Error">The user could not be found!</MudAlert>
     <MudButton Link="home">Go to home</MudButton>
 }
 else
 {
-    if (user.Id == Guid.Empty && !MemeChatRepository.IsConnectedToServer())
+    if (user.Id == Guid.Empty && !isConnected)
     {
-        <MudAlert Severity="Severity.Error">Für die Registrierung wird eine Internetverbindung benötigt!</MudAlert>
+        <MudAlert Severity="Severity.Error">An internet connection is required for registration!</MudAlert>
     }
 
-    <EditForm Model="@user" OnValidSubmit="SaveUser">
+    <EditForm Model="@user" OnValidSubmit="@(async () => await SaveUser())">
         <DataAnnotationsValidator />
         <MudGrid>
+
             <MudItem xs="12">
-                <MudAvatar Image="@user.Avatar">
-                    <MudIcon Color="Color.Dark" Icon="@Icons.Filled.AccountCircle" Size="Size.Large" />
-                </MudAvatar>
+                <button @onclick="@(async () => await OpenMediaPicker())">
+                    <MudAvatar Image="@user.Avatar" Size="Size.Large">
+                        <MudIcon Color="Color.Dark" Icon="@Icons.Filled.AccountCircle" Size="Size.Large"/>
+                    </MudAvatar>
+                </button>
             </MudItem>
+
             <MudItem xs="12" md="6">
                 <MudTextField Label="Full Name"
                           ReadOnly="@(!isCurrent)"
@@ -75,14 +88,13 @@ else
             </MudItem>
             @if (isCurrent)
             {
-                <MudItem>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(!MemeChatRepository.IsConnectedToServer())" Class="py-4">Continue</MudButton>
+                <MudItem xs="12">
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(!isConnected && user?.Id != Guid.Empty)" Class="py-4">Continue</MudButton>
                 </MudItem>
             }
         </MudGrid>
     </EditForm>
 }
-
 
 @code {
     [Inject] public NavigationManager NavigationManager { get; set; }
@@ -92,15 +104,22 @@ else
     private User user;
     private bool isCurrent;
 
+    private bool isConnected;
+
     private bool isPasswordShown = false;
     private InputType passwordInput = InputType.Password;
     private string passwordInputIcon = Icons.Material.Filled.VisibilityOff;
 
     protected override async Task OnInitializedAsync()
     {
-        if (!string.IsNullOrEmpty(Nickname))
+        isConnected = await MemeChatRepository.IsConnectedToServer();
+
+        if (!string.IsNullOrEmpty(Nickname) && Nickname != await MemeChatRepository.GetCurrentNickname())
         {
-            user = await MemeChatRepository.GetUserByNickname();
+            if (isConnected)
+            {
+                user = await MemeChatRepository.GetUserByNickname();
+            }
         }
         else
         {
@@ -108,9 +127,12 @@ else
 
             try
             {
-                user = await MemeChatRepository.GetCurrentUser();
+                if (isConnected)
+                {
+                    user = await MemeChatRepository.GetCurrentUser();
+                }
             }
-            catch {}
+            catch { }
 
             if (user == null)
             {
@@ -121,6 +143,11 @@ else
 
     private async Task SaveUser()
     {
+        if (!isConnected)
+        {
+            return;
+        }
+
         if (isCurrent)
         {
             try
@@ -135,8 +162,10 @@ else
             }
             catch { }
         }
-
-        NavigationManager.NavigateTo("chat/" + Nickname);
+        else
+        {
+            NavigationManager.NavigateTo("chat/" + Nickname);
+        }
     }
 
     private void TogglePassword()
@@ -153,5 +182,10 @@ else
             passwordInput = InputType.Text;
             passwordInputIcon = Icons.Material.Filled.Visibility;
         }
+    }
+
+    private async Task OpenMediaPicker()
+    {
+        user.Avatar = await SensorViewModel.TakePhoto();
     }
 }

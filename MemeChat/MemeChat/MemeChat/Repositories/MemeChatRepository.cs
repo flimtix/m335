@@ -16,16 +16,18 @@ namespace MemeChat.Database.Repositories
             this.serverDbContext = serverDbContext;
         }
 
-        public bool IsConnectedToServer()
+        public async Task<bool> IsConnectedToServer()
         {
             var accessType = Connectivity.Current.NetworkAccess;
 
-            return (accessType == NetworkAccess.Internet || accessType == NetworkAccess.ConstrainedInternet) && serverDbContext != null && serverDbContext.Database.CanConnect();
+            return (accessType == NetworkAccess.Internet || accessType == NetworkAccess.ConstrainedInternet) 
+                && serverDbContext != null 
+                && await serverDbContext.Database.CanConnectAsync();
         }
 
-        public bool CreateDatabase()
+        public async Task<bool> CreateDatabaseAsync()
         {
-            return clientDbContext.Database.EnsureCreated() && IsConnectedToServer() && serverDbContext.Database.EnsureCreated();
+            return await clientDbContext.Database.EnsureCreatedAsync() && await IsConnectedToServer() && await serverDbContext.Database.EnsureCreatedAsync();
         }
 
         public void SeedDatabase()
@@ -71,7 +73,7 @@ namespace MemeChat.Database.Repositories
 
             User user = null;
 
-            if (IsConnectedToServer())
+            if (await IsConnectedToServer())
             {
                 user = await serverDbContext.Users.FirstOrDefaultAsync(u => u.Nickname == nickname);
                 await SyncUserToLocal(user);
@@ -86,22 +88,27 @@ namespace MemeChat.Database.Repositories
 
         public async Task<bool> SaveUserAsync(User user)
         {
-            if(user == null)
+            if (user == null)
             {
                 return false;
             }
 
-            if (IsConnectedToServer())
+            if (await IsConnectedToServer())
             {
                 await serverDbContext.Users.AddAsync(user);
                 await clientDbContext.Users.AddAsync(user);
                 await serverDbContext.SaveChangesAsync();
                 await clientDbContext.SaveChangesAsync();
-            
+
                 return true;
             }
-            
+
             return false;
+        }
+
+        public async Task<bool> AreCredentialsValid(ILoginCredentials credentials)
+        {
+            return await IsConnectedToServer() && await serverDbContext.Users.AnyAsync(u => u.Nickname == credentials.Nickname && u.Password == credentials.Password);
         }
     }
 }
