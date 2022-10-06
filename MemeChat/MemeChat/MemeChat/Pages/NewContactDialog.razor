@@ -4,10 +4,10 @@
     </TitleContent>
     <DialogContent>
         <MudTextField @bind-Value="contact" HelperText="Search by Nickname" />
-        
+
         @if (!found)
         {
-            <MudAlert Severity="Severity.Info">There is no user with this nickname</MudAlert>
+            <MudAlert Class="my-3" Severity="Severity.Info">There is no user with this nickname</MudAlert>
         }
     </DialogContent>
     <DialogActions>
@@ -29,17 +29,19 @@
 
     protected override void OnParametersSet()
     {
-        found = false;
+        found = true;
         contact = string.Empty;
     }
 
     public void AddNewContact()
     {
         found = DoesUserExist.Invoke(contact);
+        if (found)
+        {
+            IsVisible = false;
 
-        IsVisible = false;
-
-        OnNewContact.Invoke(contact);
+            OnNewContact.Invoke(contact);
+        }
     }
 
 }

@@ -34,11 +34,15 @@
     </MudContainer>
 </MudMainContent>
 
+<NewContactDialog IsVisible="@isDialogVisible"
+                  DoesUserExist="@(nk => IndexViewModel.DoesUserWithNicknameExist(nk))"
+                  OnNewContact="@(nk => IndexViewModel.NavigateToChat(nk))" />
+
 @code {
     [Inject] public IDialogService DialogService { get; set; }
     [Inject] public IndexViewModel IndexViewModel { get; set; }
 
-    private bool isVisible;
+    private bool isDialogVisible;
 
     protected override async Task OnInitializedAsync()
     {
@@ -47,5 +51,6 @@
 
     private void AddNewContact()
     {
+        isDialogVisible = true;
     }
 }

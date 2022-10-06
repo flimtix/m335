@@ -16,7 +16,6 @@ namespace MemeChat.ViewModel
         }
 
         public string CurrentNickname { get; set; } = string.Empty;
-        public DateTime LastStart { get; set; } = DateTime.UtcNow;
 
         public bool IsConnected { get; private set; }
         public string SearchName { get; set; } = string.Empty;
@@ -47,6 +46,16 @@ namespace MemeChat.ViewModel
         public void NavigateToChat(string nickname)
         {
             navigationManager.NavigateTo("/chat/" + nickname);
+        }
+
+        public bool DoesUserWithNicknameExist(string nickname)
+        {
+            if (nickname == CurrentNickname)
+            {
+                return false;
+            }
+
+            return Task.Run(() => memeChatRepository.GetUserByNickname(nickname)).Result != null;
         }
     }
 }
