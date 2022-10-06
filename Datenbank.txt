@@ -1,0 +1,11 @@
+Die Datenbank wird über Hostinger gehostet. Mithilfe von phpMyAdmin kann sie eingesehen werden:
+
+https://auth-db134.hstgr.io/index.php?route=/sql&server=1&db=u166616309_MemeChat&table=Users&pos=0
+
+Benutzername:   u166616309_MemeChatUser
+Passwort:       1b&mhtTNELnA
+
+Die Datenbank enthält folgende Tabellen:
+- Users
+- Chats
+- Messages
