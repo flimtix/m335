@@ -3,6 +3,7 @@ using MemeChat.Database.Interfaces;
 using MemeChat.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MudBlazor.Services;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using System.Diagnostics;
 
@@ -25,14 +26,17 @@ public static class MauiProgram
 		builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
 
-		// Datenbanken hinterlegen
+		// MudBlazor UI
+		builder.Services.AddMudServices();
+
+		// Datenbanken mit Dependency Injection hinterlegen
 		builder.Services.AddDbContext<ClientDbContext>(options => options.UseSqlite(Constants.LocalDatabasePath));
 		builder.Services.AddDbContext<ServerDbContext>(options =>
-			options.UseMySql(Constants.ServerDbConnectionString, ServerVersion.Create(10, 5, 12, ServerType.MariaDb),
-				m => m.EnableRetryOnFailure(5).CommandTimeout(5)));
+			options.UseMySql(Constants.ServerDbConnectionString, ServerVersion.Create(10, 5, 12, ServerType.MariaDb)));
+        // m => m.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)
 
-		// Repositories hinterlegen
-		builder.Services.AddTransient<IMemeChatRepository, MemeChatRepository>();
+        // Repositories hinterlegen
+        builder.Services.AddTransient<IMemeChatRepository, MemeChatRepository>();
 
 		var app = builder.Build();
 

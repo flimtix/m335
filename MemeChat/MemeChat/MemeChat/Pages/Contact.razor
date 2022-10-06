@@ -1,0 +1,157 @@
+﻿@page "/register"
+@page "/account"
+@page "/contact/{Nickname}"
+@using MemeChat.Database.Interfaces
+@using MemeChat.Models
+
+<MudButton StartIcon="@Icons.Filled.KeyboardBackspace" Variant="Variant.Text" Link="@(isCurrent ? "home" : "chat/" + Nickname)" Class="my-3">
+    @(isCurrent ? "Fill Your Profile" : "Back")
+</MudButton>
+
+@if (user == null)
+{
+    <MudAlert Severity="Severity.Error">The user could not be found!</MudAlert>
+    <MudButton Link="home">Go to home</MudButton>
+}
+else
+{
+    if (user.Id == Guid.Empty && !MemeChatRepository.IsConnectedToServer())
+    {
+        <MudAlert Severity="Severity.Error">Für die Registrierung wird eine Internetverbindung benötigt!</MudAlert>
+    }
+
+    <EditForm Model="@user" OnValidSubmit="SaveUser">
+        <DataAnnotationsValidator />
+        <MudGrid>
+            <MudItem xs="12">
+                <MudAvatar Image="@user.Avatar">
+                    <MudIcon Color="Color.Dark" Icon="@Icons.Filled.AccountCircle" Size="Size.Large" />
+                </MudAvatar>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField Label="Full Name"
+                          ReadOnly="@(!isCurrent)"
+                          @bind-Value="user.Name"
+                          For="@(() => user.Name)" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField Label="Nickname"
+                          HelperText="With this name you will be found"
+                          HelperTextOnFocus="true"
+                          ReadOnly="@(!isCurrent)"
+                          @bind-Value="user.Nickname"
+                          For="@(() => user.Nickname)" />
+            </MudItem>
+            <MudItem xs="12" md="isCurrent ? 12 : 6">
+                <MudDatePicker Label="Date of Birth"
+                           @bind-Date="user.DateOfBirth"
+                           For="@(() => user.DateOfBirth)" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField Label="Email"
+                          InputType="InputType.Email"
+                          ReadOnly="@(!isCurrent)"
+                          @bind-Value="user.Email"
+                          For="@(() => user.Email)" />
+            </MudItem>
+            @if (isCurrent)
+            {
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Password"
+                          InputType="passwordInput"
+                          @bind-Value="user.Password"
+                          For="@(() => user.Password)"
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@passwordInputIcon"
+                          OnAdornmentClick="TogglePassword" />
+                </MudItem>
+            }
+            <MudItem xs="12">
+                <MudTextField Label="About"
+                          Lines="4"
+                          ReadOnly="@(!isCurrent)"
+                          @bind-Value="user.About"
+                          For="@(() => user.About)" />
+            </MudItem>
+            @if (isCurrent)
+            {
+                <MudItem>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(!MemeChatRepository.IsConnectedToServer())" Class="py-4">Continue</MudButton>
+                </MudItem>
+            }
+        </MudGrid>
+    </EditForm>
+}
+
+
+@code {
+    [Inject] public NavigationManager NavigationManager { get; set; }
+    [Inject] public IMemeChatRepository MemeChatRepository { get; set; }
+    [Parameter] public string Nickname { get; set; }
+
+    private User user;
+    private bool isCurrent;
+
+    private bool isPasswordShown = false;
+    private InputType passwordInput = InputType.Password;
+    private string passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(Nickname))
+        {
+            user = await MemeChatRepository.GetUserByNickname();
+        }
+        else
+        {
+            isCurrent = true;
+
+            try
+            {
+                user = await MemeChatRepository.GetCurrentUser();
+            }
+            catch {}
+
+            if (user == null)
+            {
+                user = new User();
+            }
+        }
+    }
+
+    private async Task SaveUser()
+    {
+        if (isCurrent)
+        {
+            try
+            {
+                bool isSaved = await MemeChatRepository.SaveUserAsync(user);
+
+                if (isSaved)
+                {
+                    await SecureStorage.SetAsync(Constants.SecureStorage_Nickname, user.Nickname);
+                    NavigationManager.NavigateTo("home");
+                }
+            }
+            catch { }
+        }
+
+        NavigationManager.NavigateTo("chat/" + Nickname);
+    }
+
+    private void TogglePassword()
+    {
+        if (isPasswordShown)
+        {
+            isPasswordShown = false;
+            passwordInput = InputType.Password;
+            passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+        }
+        else
+        {
+            isPasswordShown = true;
+            passwordInput = InputType.Text;
+            passwordInputIcon = Icons.Material.Filled.Visibility;
+        }
+    }
+}

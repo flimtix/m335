@@ -6,7 +6,7 @@ namespace MemeChat.Models
     public class User
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.Empty;
         [Required]
         [StringLength(maximumLength: 50, MinimumLength = 3)]
         public string Nickname { get; set; } = string.Empty;
@@ -28,8 +28,24 @@ namespace MemeChat.Models
         [DataType(DataType.MultilineText)]
         public string About { get; set; } = string.Empty;
         [Required]
-        public DateTime DateOfBirth { get; set; }
+        public DateTime? DateOfBirth { get; set; } = DateTime.Today.AddYears(-16);
         [Required]
         internal DateTime CreatedAd { get; set; } = DateTime.UtcNow;
+
+        public void Map(User user)
+        {
+            if (user == null)
+            {
+                return;
+            }
+
+            Nickname = user.Nickname;
+            Name = user.Name;
+            Email = user.Email;
+            Password = user.Password;
+            Avatar = user.Avatar;
+            About = user.About;
+            DateOfBirth = user.DateOfBirth;
+        }
     }
 }

@@ -1,5 +1,20 @@
 ﻿@page "/"
+@page "/home"
+@using MemeChat.Database.Interfaces
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+@code {
+    [Inject] public NavigationManager NavigationManager { get; set; }
+    [Inject] public IMemeChatRepository MemeChatRepository { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(await MemeChatRepository.GetCurrentNickname())){
+            NavigationManager.NavigateTo("start", true);
+        }
+    }
+
+}

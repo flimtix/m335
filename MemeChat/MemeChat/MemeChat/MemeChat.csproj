@@ -32,6 +32,7 @@
         <Authors>Manuel Schumacher</Authors>
         <Company>pebe AG</Company>
         <Description>Teile die wichtigen Dinge im Leben. Memes!</Description>
+        <Nullable>disable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -61,6 +62,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\MemeChat.Components\MemeChat.Components.csproj" />
       <ProjectReference Include="..\MemeChat.Database\MemeChat.Database.csproj" />
     </ItemGroup>
 
