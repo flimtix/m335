@@ -4,6 +4,8 @@
 
 **Das [Repository](https://github.com/21r8390/m335) enthält die Lösungen zu den Aufgaben der M335.**
 
+**!!! Es gibt ein Datenbanklimit von 500 Anfragen pro Stunde !!!**
+
 ## Planung
 
 Für die Planung des Projektes wurden diverse Tools wie [PlantUML](https://plantuml.com) & [Figma](https://www.figma.com) verwendet. Die Icons stammen von [Octicons](https://primer.style/octicons/).

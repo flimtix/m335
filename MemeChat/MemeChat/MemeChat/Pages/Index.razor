@@ -38,7 +38,7 @@
                         <MudAvatar Image="@user.Avatar" />
                         <div>
                             <MudText Typo="Typo.subtitle2">@user.Name</MudText>
-                            <MudText Typo="Typo.body2">@IndexViewModel.Chats[user.Nickname].Messages.Last().SendAt.Humanize()</MudText>
+                            <MudText Typo="Typo.body2">@IndexViewModel.Chats[user.Nickname]?.Messages?.Last()?.SendAt.Humanize()</MudText>
                         </div>
                     </MudStack>
                 </div>

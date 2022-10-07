@@ -44,9 +44,11 @@
                 <MudGrid>
                     <MudItem xs="12">
                         <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center">
-                            <MudAvatar Image="@user.Avatar" Style="height:110px; width:110px; font-size:2rem;">
-                                <MudIconButton Color="Color.Dark" Icon="@Icons.Filled.AccountCircle" Size="Size.Large" OnClick="@(async () => await OpenMediaPicker())" Disabled="@(!isCurrent)" />
-                            </MudAvatar>
+                            <div @onclick="@(async () => await OpenMediaPicker())">
+                                <MudAvatar Image="@user.Avatar" Style="height:110px; width:110px; font-size:2rem;">
+                                    <MudIconButton Color="Color.Dark" Icon="@Icons.Filled.AccountCircle" Size="Size.Large" />
+                                </MudAvatar>
+                            </div>
                         </MudStack>
                     </MudItem>
 
@@ -184,6 +186,15 @@
 
     private async Task OpenMediaPicker()
     {
-        user.Avatar = await SensorService.TakePhoto();
+        if (DeviceInfo.Current.Platform == DevicePlatform.WinUI || DeviceInfo.Current.Platform == DevicePlatform.Unknown)
+        {
+            // Windows lässt Zugriff auf Kammera nicht zu
+            user.Avatar = await SensorService.PickPhoto();
+        }
+        else
+        {
+            // Foto aufnehmen
+            user.Avatar = await SensorService.TakePhoto();
+        }
     }
 }

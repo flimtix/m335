@@ -2,7 +2,6 @@
 using MemeChat.Database.Interfaces;
 using MemeChat.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 
 namespace MemeChat.Database.Repositories
 {
@@ -36,10 +35,8 @@ namespace MemeChat.Database.Repositories
 
                 return true;
             }
-            catch (Exception e)
+            catch
             {
-                Debugger.Break();
-                Debug.WriteLine(e.Message);
                 return false;
             }
         }
