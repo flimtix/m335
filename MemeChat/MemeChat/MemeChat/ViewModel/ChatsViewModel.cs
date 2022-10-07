@@ -6,7 +6,7 @@ namespace MemeChat.ViewModel
 {
     public class ChatsViewModel : IDisposable
     {
-        private const int Delay = 3;
+        private const int Delay = 1500;
         private readonly IMemeChatRepository memeChatRepository;
         private CancellationTokenSource pollingTask;
         private Action refreshUi;
@@ -21,7 +21,7 @@ namespace MemeChat.ViewModel
         public User Sender { get; set; }
         public User CurrentUser { get; set; }
         public Chat Chat { get; set; }
-        public ICollection<Message> Messages { get; private set; } = new List<Message>();
+        public IOrderedEnumerable<Message> Messages => Chat?.Messages?.OrderBy(m => m.SendAt) ?? Array.Empty<Message>().OrderBy(k => k);
 
         public async Task LoadData(string senderNickname, Action refreshUi)
         {
@@ -37,11 +37,6 @@ namespace MemeChat.ViewModel
 
             // Set up polling
             PolleChats();
-        }
-
-        private ICollection<Message> GetMessages()
-        {
-            return Chat?.Messages?.OrderBy(m => m.SendAt)?.ToList() ?? new List<Message>();
         }
 
         public async Task SendMeme()
@@ -86,9 +81,8 @@ namespace MemeChat.ViewModel
                     try
                     {
                         Chat = await memeChatRepository.GetChat(Sender, CurrentUser);
-                        Messages = GetMessages();
                         refreshUi.Invoke();
-                        Thread.Sleep(Delay * 800);
+                        await Task.Delay(Delay, pollingTask.Token);
                     }
                     catch { /* Ignore error */ }
                 }

@@ -31,7 +31,8 @@
         }
         else
         {
-            <MudVirtualize IsEnabled="true" Items="@IndexViewModel.Users" Context="user">
+            foreach (var user in IndexViewModel.Users)
+            {
                 <div @onclick="@(() => IndexViewModel.NavigateToChat(user.Nickname))">
                     <MudStack Row="true">
                         <MudAvatar Image="@user.Avatar" />
@@ -41,7 +42,7 @@
                         </div>
                     </MudStack>
                 </div>
-            </MudVirtualize>
+            }
         }
     </MudContainer>
 </MudMainContent>

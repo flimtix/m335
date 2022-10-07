@@ -6,6 +6,8 @@ namespace MemeChat.Models
 {
     public class User : ILoginCredentials
     {
+        private string avatar;
+
         [Key]
         public Guid Id { get; set; } = Guid.Empty;
         [Required]
@@ -24,7 +26,11 @@ namespace MemeChat.Models
         public string Password { get; set; } = string.Empty;
         [MaybeNull]
         [DataType(DataType.ImageUrl)]
-        public string Avatar { get; set; }
+        public string Avatar
+        {
+            get => string.IsNullOrEmpty(avatar) ? @$"https://avatars.dicebear.com/api/micah/{Nickname}.svg" : avatar;
+            set => avatar = value;
+        }
         [Required]
         [DataType(DataType.MultilineText)]
         public string About { get; set; } = string.Empty;

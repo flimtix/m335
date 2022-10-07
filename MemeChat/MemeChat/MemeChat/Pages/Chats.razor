@@ -11,14 +11,14 @@
 </MudAppBar>
 
 <MudMainContent>
-    <MudContainer MaxWidth="MaxWidth.Large" Class="py-2">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="py-2 overflow-hidden">
         @if (ChatsViewModel?.Sender == null)
         {
             <MudAlert Severity="Severity.Error">The recipient could not be found.</MudAlert>
         }
         else
         {
-            <div class="position-relative" style="height: 90vh">
+            <div class="position-relative" style="height: 88vh">
                 @if (ChatsViewModel?.Chat?.Messages == null || !ChatsViewModel.Chat.Messages.Any())
                 {
                     <MudStack Justify="Justify.Center" Spacing="2">
@@ -28,13 +28,14 @@
                 }
                 else
                 {
-                    <div class="overflow-auto" style="height: 85vh">
-                        <MudVirtualize IsEnabled="true" Items="ChatsViewModel.Messages" Context="message">
+                    <div class="overflow-auto" style="height: 80vh">
+                        @foreach (var message in ChatsViewModel.Messages)
+                        {
                             <MudStack Spacing="0" Class="py-2" AlignItems="@(message.SendBy == ChatsViewModel.CurrentUser ? AlignItems.End : AlignItems.Start)">
                                 <MudImage ObjectFit="ObjectFit.Cover" Src="@message.URL" Elevation="25" Fluid="true" Class="rounded-lg" Style="width: 45%" />
                                 <MudText Typo="Typo.overline">@message.SendAt.ToLocalTime().ToString("g")</MudText>
                             </MudStack>
-                        </MudVirtualize>
+                        }
                     </div>
                 }
 
@@ -63,6 +64,6 @@
             return;
         }
 
-        await ChatsViewModel.LoadData(Nickname, () => StateHasChanged());
+        await ChatsViewModel.LoadData(Nickname, () => InvokeAsync(() => StateHasChanged()));
     }
 }

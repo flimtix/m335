@@ -103,7 +103,11 @@ namespace MemeChat.Database.Repositories
             {
                 var nickname = await GetCurrentNickname();
 
-                var dbChats = await clientDbContext.Chats.Where(u => u.User_1.Nickname == nickname || u.User_2.Nickname == nickname).ToListAsync();
+                var dbChats = await clientDbContext.Chats
+                    .Include(u => u.User_1)
+                    .Include(u => u.User_2)
+                    .Where(u => u.User_1.Nickname == nickname || u.User_2.Nickname == nickname)
+                    .ToListAsync();
 
                 foreach (var chat in dbChats)
                 {
@@ -165,7 +169,7 @@ namespace MemeChat.Database.Repositories
         {
             if (!await IsConnectedToServer())
             {
-                return null;
+                return await clientDbContext.Chats.FirstOrDefaultAsync(u => u.User_1 == sender && u.User_2 == current || u.User_1 == current && u.User_2 == sender);
             }
 
             return await serverDbContext.Chats.FirstOrDefaultAsync(u => u.User_1 == sender && u.User_2 == current || u.User_1 == current && u.User_2 == sender);
