@@ -36,9 +36,10 @@ namespace MemeChat.Database.Repositories
 
                 return true;
             }
-            catch
+            catch (Exception e)
             {
                 Debugger.Break();
+                Debug.WriteLine(e.Message);
                 return false;
             }
         }

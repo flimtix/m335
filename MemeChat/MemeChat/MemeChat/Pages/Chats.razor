@@ -11,24 +11,24 @@
 </MudAppBar>
 
 <MudMainContent>
-    <MudContainer MaxWidth="MaxWidth.Large">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="py-2">
         @if (ChatsViewModel?.Sender == null)
         {
             <MudAlert Severity="Severity.Error">The recipient could not be found.</MudAlert>
         }
         else
         {
-            <div class="position-relative" style="height: 93vh">
+            <div class="position-relative" style="height: 90vh">
                 @if (ChatsViewModel?.Chat?.Messages == null || !ChatsViewModel.Chat.Messages.Any())
                 {
                     <MudStack Justify="Justify.Center" Spacing="2">
-                        <MudText Typo="Typo.subtitle2" Class="px-3">There are no memes shared yet.</MudText>
+                        <MudText Align="Align.Center" Typo="Typo.subtitle2" Class="px-3">There are no memes shared yet.</MudText>
                         <MudIconButton Icon="@Icons.Filled.Refresh" OnClick="@(() => StateHasChanged())" />
                     </MudStack>
                 }
                 else
                 {
-                    <div class="overflow-auto" style="height: 93vh">
+                    <div class="overflow-auto" style="height: 85vh">
                         <MudVirtualize IsEnabled="true" Items="ChatsViewModel.Messages" Context="message">
                             <MudStack Spacing="0" Class="py-2" AlignItems="@(message.SendBy == ChatsViewModel.CurrentUser ? AlignItems.End : AlignItems.Start)">
                                 <MudImage ObjectFit="ObjectFit.Cover" Src="@message.URL" Elevation="25" Fluid="true" Class="rounded-lg" Style="width: 45%" />

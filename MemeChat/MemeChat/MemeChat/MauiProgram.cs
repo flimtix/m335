@@ -33,8 +33,8 @@ public static class MauiProgram
         // Datenbanken mit Dependency Injection hinterlegen
         builder.Services.AddDbContext<ClientDbContext>(options => options.UseSqlite(Constants.LocalDatabasePath));
         builder.Services.AddDbContext<ServerDbContext>(options =>
-            options.UseMySql(Constants.ServerDbConnectionString, ServerVersion.Create(10, 5, 12, ServerType.MariaDb)));
-        // m => m.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)
+            options.UseMySql(Constants.ServerDbConnectionString, ServerVersion.Create(10, 5, 12, ServerType.MariaDb),
+                m => m.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null).CommandTimeout(10)), ServiceLifetime.Singleton);
 
         // Repositories hinterlegen
         builder.Services.AddTransient<IMemeChatRepository, MemeChatRepository>();

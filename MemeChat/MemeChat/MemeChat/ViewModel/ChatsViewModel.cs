@@ -21,7 +21,7 @@ namespace MemeChat.ViewModel
         public User Sender { get; set; }
         public User CurrentUser { get; set; }
         public Chat Chat { get; set; }
-        public ICollection<Message> Messages => GetMessages();
+        public ICollection<Message> Messages { get; private set; } = new List<Message>();
 
         public async Task LoadData(string senderNickname, Action refreshUi)
         {
@@ -41,7 +41,7 @@ namespace MemeChat.ViewModel
 
         private ICollection<Message> GetMessages()
         {
-            return Chat?.Messages?.OrderByDescending(m => m.SendAt)?.ToList() ?? new List<Message>();
+            return Chat?.Messages?.OrderBy(m => m.SendAt)?.ToList() ?? new List<Message>();
         }
 
         public async Task SendMeme()
@@ -81,19 +81,14 @@ namespace MemeChat.ViewModel
             pollingTask = new CancellationTokenSource();
             Task.Factory.StartNew(async () =>
             {
-                int last = 0;
                 while (!pollingTask.IsCancellationRequested)
                 {
                     try
                     {
                         Chat = await memeChatRepository.GetChat(Sender, CurrentUser);
-
-                        if (Chat != null && last != Chat.Messages.Count)
-                        {
-                            refreshUi.Invoke();
-                            last = Chat.Messages.Count;
-                        }
-                        Thread.Sleep(Delay * 1000);
+                        Messages = GetMessages();
+                        refreshUi.Invoke();
+                        Thread.Sleep(Delay * 800);
                     }
                     catch { /* Ignore error */ }
                 }
