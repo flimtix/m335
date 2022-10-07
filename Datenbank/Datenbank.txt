@@ -5,6 +5,8 @@ https://auth-db134.hstgr.io/index.php?route=/sql&server=1&db=u166616309_MemeChat
 Benutzername:   u166616309_MemeChatUser
 Passwort:       1b&mhtTNELnA
 
+Bei der Datenbank gibt es ein stündliches Limit von 500 Abfragen. Wenn diees überschritten wird, dann kann sie nicht mehr abgefragt werden!
+
 Die Datenbank enthält folgende Tabellen:
 - Users
 - Chats
